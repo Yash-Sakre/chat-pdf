@@ -12,14 +12,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Upload, File, X, Divide } from "lucide-react";
+import { Upload, File, X } from "lucide-react";
 
 import { useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { LoaderCircle } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { useUser } from "@clerk/nextjs";
-import { getFileUrl } from "@/convex/fileStorage";
+
 import axios from "axios";
 
 interface UploadDialogProps {
@@ -70,7 +70,7 @@ export function UploadPdf({ isOpen, onClose }: UploadDialogProps) {
     const fileId = uuidv4();
     const fileUrl = await getFileurl({ StorageId: storageId }) as string;
 
-    const reponse = await uploadfileInDB({
+    await uploadfileInDB({
       StorageId: storageId,
       fileName: fileName??'Untitled File',
       fileId: fileId,

@@ -30,6 +30,7 @@
     "clsx": "^2.1.1",
     "convex": "^1.17.3",
     "dotenv": "^16.4.7",
+    "eslint-config-prettier": "^9.1.0",
     "framer-motion": "^11.14.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.468.0",

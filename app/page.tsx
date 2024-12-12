@@ -1,6 +1,6 @@
 "use client";
 
-import { UserButton, useUser } from "@clerk/nextjs";
+import {  useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation"; 
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
@@ -8,15 +8,15 @@ import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Badge, Check, FileText, MessageSquare, Zap } from "lucide-react";
+import {  Check, FileText, MessageSquare, Zap } from "lucide-react";
 
 import {
   NavigationMenu,
-  NavigationMenuContent,
+
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
+  
 } from "@/components/ui/navigation-menu";
 import { Github } from "lucide-react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
@@ -41,7 +41,7 @@ export default function Home() {
   }, [user]);
 
   const CheckUser = async () => {
-    const result = await createUser({
+    await createUser({
       email: user?.primaryEmailAddress?.emailAddress || "",
       userName: user?.fullName || "",
       imageUrl: user?.imageUrl || "",

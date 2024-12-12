@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+
 import "./globals.css";
 import { Outfit } from "next/font/google";
 import Provider from "./provider";
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Made by Yash",
 };
 
-export const outfit = Outfit({ subsets: ["latin"] });
+const outfit = Outfit({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,

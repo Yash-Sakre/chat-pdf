@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Cross, Menu, Upload } from "lucide-react";
+import {  Menu, Upload } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/hooks/useTheme";

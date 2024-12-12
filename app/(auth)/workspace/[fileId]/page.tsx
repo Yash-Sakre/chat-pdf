@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import WorkspaceHeader from "../_components/WorkspaceHeader";
 import { useParams } from "next/navigation";
 import PdfViewer from "../_components/pdfViewer";

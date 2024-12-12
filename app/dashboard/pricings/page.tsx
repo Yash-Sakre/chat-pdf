@@ -8,10 +8,10 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
+
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+
 } from "@/components/ui/dialog";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import { useMutation } from "convex/react";
