@@ -9,11 +9,25 @@ import Image from "next/image";
 import { useTheme } from "@/hooks/useTheme";
 import { X } from "lucide-react";
 import { UploadPdf } from "./UploadPdf";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
 
 function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const { theme } = useTheme();
+  const {user} = useUser();
+
+  const files = useQuery(api.fileStorage.getallFiles, {
+    userEmail: user?.primaryEmailAddress?.emailAddress as string,
+  });
+
+  const getuserInfo = useQuery(api.user.getUserInfo,{
+    userEmail: user?.primaryEmailAddress?.emailAddress as string,
+  })
+  
+
 
   return (
     <>
@@ -55,6 +69,7 @@ function Sidebar() {
           <Button
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={() => setIsUploadDialogOpen(true)}
+            disabled={files && (files.length >= 5 && !getuserInfo?.upgrade )? true : false}
           >
             <Upload className="mr-2 h-4 w-4" />
             Upload PDF
@@ -62,7 +77,7 @@ function Sidebar() {
         </div>
         <nav className="space-y-2">
           <Link
-            href="#"
+            href="/dashboard"
             className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-md"
           >
             Workspace
@@ -74,12 +89,12 @@ function Sidebar() {
             Upgrade
           </Link>
         </nav>
-        <div className="mt-auto">
+        {!getuserInfo?.upgrade && <div className="mt-auto">
           <div className="text-sm text-muted-foreground mb-2">
-            2 Pdf out of 5 pdf uploaded
+          {files ? `${files.length} PDF(s) out of 5 uploaded` : "Loading files..."}
           </div>
-          <Progress value={40} className="h-1" />
-        </div>
+          <Progress  value={files ? (files.length / 5) * 100 : 0} className="h-1" />
+        </div>}
       </div>
       <UploadPdf 
         isOpen={isUploadDialogOpen} 

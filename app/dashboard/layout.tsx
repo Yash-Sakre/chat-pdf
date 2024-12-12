@@ -3,6 +3,7 @@ import Sidebar from "./_components/Sidebar";
 import Header from "./_components/Header";
 
 function DashboardLayout({ children }: { children: React.ReactNode }) {
+ 
   return (
     <div className="flex flex-col md:flex-row h-screen">
         <Sidebar />

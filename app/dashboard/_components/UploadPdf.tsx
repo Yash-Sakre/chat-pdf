@@ -1,47 +1,97 @@
-"use client"
+"use client";
 
-import { useState, useCallback } from "react"
-import { useDropzone } from "react-dropzone"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Upload, File, X } from 'lucide-react'
+import { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Upload, File, X, Divide } from "lucide-react";
+
+import { useAction, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { LoaderCircle } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import { useUser } from "@clerk/nextjs";
+import { getFileUrl } from "@/convex/fileStorage";
+import axios from "axios";
 
 interface UploadDialogProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function UploadPdf({ isOpen, onClose }: UploadDialogProps) {
-  const [files, setFiles] = useState<File[]>([])
-  const [fileName, setFileName] = useState("")
+  const [file, setFile] = useState<File[]>([]);
+  const [fileName, setFileName] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const { user } = useUser();
+  const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
+  const uploadfileInDB = useMutation(api.fileStorage.UploadFileData);
+  const getFileurl = useMutation(api.fileStorage.getFileUrl);
+  const embeddedData = useAction(api.myActions.ingest)
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFiles(acceptedFiles)
+    setFile(acceptedFiles);
     if (acceptedFiles.length > 0) {
-      setFileName(acceptedFiles[0].name.replace(/\.[^/.]+$/, "")) 
+      setFileName(acceptedFiles[0].name.replace(/\.[^/.]+$/, ""));
     }
-  }, [])
-
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf']
+      "application/pdf": [".pdf"],
     },
-    multiple: false
-  })
+    multiple: false,
+  });
 
-  const handleUpload = () => {
-    if (fileName.trim() === "") return
-    // Handle file upload logic here
-    console.log("Uploading file:", { name: fileName, file: files[0] })
-    // Reset state and close dialog after upload
-    setFiles([])
-    setFileName("")
-    onClose()
-  }
+  const handleUpload = async () => {
+    setLoading(true);
+
+    if (fileName.trim() === "") return;
+
+    const postUrl = await generateUploadUrl();
+
+    const result = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": file[0]?.type },
+      body: file[0],
+    });
+
+    const { storageId } = await result.json();
+    const fileId = uuidv4();
+    const fileUrl = await getFileurl({ StorageId: storageId }) as string;
+
+    const reponse = await uploadfileInDB({
+      StorageId: storageId,
+      fileName: fileName??'Untitled File',
+      fileId: fileId,
+      fileUrl:fileUrl, 
+      createdBy: user?.primaryEmailAddress?.emailAddress || "unknown-user",
+    });
+
+  
+
+    const pdfContent = await axios.get("/api/pdf-loader?pdfUrl=" + fileUrl)
+
+    await embeddedData({
+      splitText: pdfContent.data.result,
+      fileId: fileId,
+    })
+
+    setFile([]);
+    setFileName("");
+    setLoading(false);
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -59,18 +109,18 @@ export function UploadPdf({ isOpen, onClose }: UploadDialogProps) {
           }`}
         >
           <input {...getInputProps()} />
-          {files.length > 0 ? (
+          {file.length > 0 ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <File className="h-6 w-6 mr-2" />
-                <span className="text-sm">{files[0].name}</span>
+                <span className="text-sm">{file[0].name}</span>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  setFiles([])
+                  e.stopPropagation();
+                  setFile([]);
                 }}
               >
                 <X className="h-4 w-4" />
@@ -95,11 +145,20 @@ export function UploadPdf({ isOpen, onClose }: UploadDialogProps) {
             required
           />
         </div>
-        <Button onClick={handleUpload} disabled={files.length === 0} className="mt-4">
-          Upload PDF
+        <Button
+          onClick={handleUpload}
+          disabled={file.length === 0}
+          className="mt-4"
+        >
+          {loading ? (
+            <>
+              <LoaderCircle className="animate-spin" />
+            </>
+          ) : (
+            <div>Upload PDF</div>
+          )}
         </Button>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
