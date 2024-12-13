@@ -1,22 +1,20 @@
 "use client";
 
-import {  useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation"; 
+import { useUser } from "@clerk/nextjs";
+// import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
 import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {  Check, FileText, MessageSquare, Zap } from "lucide-react";
+import { Check, FileText, MessageSquare, Zap } from "lucide-react";
 
 import {
   NavigationMenu,
-
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  
 } from "@/components/ui/navigation-menu";
 import { Github } from "lucide-react";
 import { ModeToggle } from "@/components/ui/mode-toggle";
@@ -25,20 +23,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 export default function Home() {
-
   const { user } = useUser();
   const { theme } = useTheme();
-  const router = useRouter(); 
 
   const createUser = useMutation(api.user.createUser);
 
   useEffect(() => {
-    if (user) {
-      router.push("/dashboard"); 
-    } else {
-      CheckUser();
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    user && CheckUser();
   }, [user]);
+
+  console.log(user);
 
   const CheckUser = async () => {
     await createUser({
@@ -46,8 +41,6 @@ export default function Home() {
       userName: user?.fullName || "",
       imageUrl: user?.imageUrl || "",
     });
-    
-    
   };
 
   return (
@@ -98,12 +91,12 @@ export default function Home() {
         <div className=" flex items-center space-x-4">
           <ModeToggle />
           <Link href={"/sign-in"}>
-          <Button variant="ghost" className="">
-            Sign In
-          </Button>
+            <Button variant="ghost" className="">
+              Sign In
+            </Button>
           </Link>
           <Link href={"/sign-up"}>
-          <Button className=" ">Sign Up</Button>
+            <Button className=" ">Sign Up</Button>
           </Link>
         </div>
       </header>
@@ -122,11 +115,14 @@ export default function Home() {
                 </p>
               </div>
               <div className="space-x-4 flex items-center ">
-                <Link href={"https://github.com/Yash-Sakre/chat-pdf"} target="__blank">
-                <Button variant="outline" className=" ">
-                  <Github className="mr-2 h-4 w-4" />
-                  Star on Github
-                </Button>
+                <Link
+                  href={"https://github.com/Yash-Sakre/chat-pdf"}
+                  target="__blank"
+                >
+                  <Button variant="outline" className=" ">
+                    <Github className="mr-2 h-4 w-4" />
+                    Star on Github
+                  </Button>
                 </Link>
               </div>
             </div>
