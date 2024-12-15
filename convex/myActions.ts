@@ -21,17 +21,23 @@ export const ingest = action({
       throw new Error("Google API Key is not configured");
     }
 
-    await ConvexVectorStore.fromTexts(
-      args.splitText,
-      { fileId: args.fileId },
-      new GoogleGenerativeAIEmbeddings({
-        apiKey: apiKey,
-        model: "text-embedding-004",
-        taskType: TaskType.RETRIEVAL_DOCUMENT,
-        title: "Document title",
-      }),
-      { ctx }
-    );
+    try {
+      await ConvexVectorStore.fromTexts(
+        args.splitText,
+        { fileId: args.fileId },
+        new GoogleGenerativeAIEmbeddings({
+          apiKey: apiKey,
+          model: "text-embedding-004",
+          taskType: TaskType.RETRIEVAL_DOCUMENT,
+          title: "Document title",
+        }),
+        { ctx }
+      );
+    } catch (error) {
+      console.error("Error during ingestion:", error);
+      throw new Error("Ingestion failed");
+    }
+    
   },
 });
 
